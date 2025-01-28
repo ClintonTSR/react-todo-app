@@ -1,6 +1,6 @@
 export type Todo = {
     id: string,
-    title: string,
+    name: string,
     description: string,
     dueDate: string,
     status: string
@@ -11,7 +11,7 @@ export type GetTodoRequest = {
 }
 
 export type CreateTodoRequest = {
-    title: string,
+    name: string,
     description: string,
     dueDate: string
 }
