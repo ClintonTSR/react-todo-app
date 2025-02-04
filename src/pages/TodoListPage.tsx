@@ -1,7 +1,7 @@
 import { Box, Fab, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { getTodos } from '../queries/todo'
+import { useGetTodosQuery } from '../queries/todo'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import TodoRow from '../components/customs/TodoRow'
 
@@ -15,7 +15,7 @@ const TodoListPage = () => {
         fetchNextPage,
         hasNextPage,
         refetch,
-    } = getTodos({ limit: 30 })
+    } = useGetTodosQuery({ limit: 30 })
 
     const flatTodos = todoRes?.pages.reduce(
         (acc, page) => acc.concat(page.data),
