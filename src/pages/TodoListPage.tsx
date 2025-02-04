@@ -1,52 +1,58 @@
-import { Box, Fab, Stack, Typography } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import AddIcon from '@mui/icons-material/Add'
-import { bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
-import AddTodoDialog from "../components/customs/AddTodoDialog";
-import { useNavigate } from "react-router-dom";
-import TodoItem from "../components/TodoItem";
-import { getTodos } from "../queries/todo";
+import { Box, Fab, Stack, Typography } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
+import { getTodos } from '../queries/todo'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import TodoRow from '../components/customs/TodoRow'
 
 const TodoListPage = () => {
-    const navigate = useNavigate();
-    const popupState = usePopupState({ variant: 'dialog', popupId: 'demoMenu' })
+    const navigate = useNavigate()
 
-    const { data: todos, isLoading } = getTodos();
+    const {
+        data: todoRes,
+        isLoading,
+        isError,
+        fetchNextPage,
+        hasNextPage,
+        refetch,
+    } = getTodos({ limit: 30 })
+
+    const flatTodos = todoRes?.pages.reduce(
+        (acc, page) => acc.concat(page.data),
+        []
+    )
 
     return (
-        <Box>
-            <AddTodoDialog popupState={popupState}/>
-            <Stack marginY={2} marginX="auto" maxWidth="md" minWidth="50vw" rowGap={2}>
-                <Typography variant="h4">My Todo List</Typography>
-                <Fab color="primary" aria-label="add" variant="extended"
-                     {...bindTrigger(popupState)}
-                     sx={{
-                         position: 'fixed',
-                         bottom: '30px',
-                         right: '30px',
-                     }}>
-                    <AddIcon/>
-                    Add New List
-                </Fab>
-                {
-                    // data?.thisUser && data.thisUser.todoLists.map(list =>
-                    //     <Box key={list.id} padding={2} borderRadius={1} border="1px solid grey"
-                    //          sx={{
-                    //              cursor: 'pointer',
-                    //              ":hover": {
-                    //                  boxShadow: 2
-                    //              }
-                    //          }}
-                    //          onClick={() => showTodoList(list.id)}>
-                    //         <Typography fontWeight={'bold'}>{list.name}</Typography>
-                    //         <Typography>List Description</Typography>
-                    //     </Box>
-                    // ) || 
-                    <Typography> - Empty List - </Typography>
-                }
-            </Stack>
-        </Box>
-    );
-};
+        <div className="mx-auto my-8 max-w-md min-w-[50vw] space-x-4">
+            <h1 className="text-4xl">My Todo List</h1>
+            <div className="h-[50vh] overflow-y-auto" id="todo-list">
+                <InfiniteScroll
+                    className="divide-gray-200 divide-y-2 space-y-2"
+                    dataLength={flatTodos?.length ?? 0}
+                    next={fetchNextPage}
+                    hasMore={hasNextPage}
+                    loader={<h4>Loading...</h4>}
+                    endMessage={
+                        <p style={{ textAlign: 'center' }}>
+                            - End of results -
+                        </p>
+                    }
+                    refreshFunction={refetch}
+                    scrollableTarget="todo-list"
+                >
+                    {isLoading ? (
+                        <p>Loading...</p>
+                    ) : isError ? (
+                        <p>Errored!</p>
+                    ) : (
+                        flatTodos.map((todo) => (
+                            <TodoRow key={todo.id} todo={todo} />
+                        ))
+                    )}
+                </InfiniteScroll>
+            </div>
+        </div>
+    )
+}
 
-export default TodoListPage;
+export default TodoListPage
