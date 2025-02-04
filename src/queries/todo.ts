@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { CreateTodoRequest, Todo, UpdateTodoRequest } from "./todo.type";
 import { PaginatedResponse } from "../lib/cursor";
 
@@ -12,13 +12,27 @@ export const getTodoById = (id: string) => {
     })
 }
 
-export const getTodos = () => {
-    return useQuery<PaginatedResponse<Todo>>({
-        queryKey: ['todos'],
-        queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/todo`);
+export const getTodos = (queries: { limit: number }) => {
+    return useInfiniteQuery<PaginatedResponse<Todo>>({
+        queryKey: ['todos', queries],
+        queryFn: async ({ pageParam }) => {
+            const params = new URLSearchParams();
+            params.append('limit', String(queries.limit));
+
+            if (pageParam) {
+                params.append('afterCursor', pageParam as string);
+            }
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/todo?${params.toString()}`);
             return await response.json();
-        }
+        },
+        getNextPageParam: (data) => {
+            return data.cursor.afterCursor;
+        },
+        getPreviousPageParam: (data) => {
+            return data.cursor.beforeCursor;
+        },
+        initialPageParam: null,
     })
 }
 
