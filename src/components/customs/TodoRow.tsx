@@ -6,27 +6,40 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
 import { Button, Chip } from '@mui/material'
 import { useState } from 'react'
+import {
+    useCreateTodoMutation,
+    useUpdateTodoMutation,
+} from '../../queries/todo'
 
 const TodoRow = ({ todo }: { todo: Todo }) => {
-    const { control, setValue } = useForm<Todo>()
+    const { control, setValue, handleSubmit, formState } = useForm<Todo>()
     const [isEditing, setIsEditing] = useState(false)
-    const { mutate } = useTodo
+    const { mutateAsync: updateTodo } = useUpdateTodoMutation()
+    const { mutateAsync: createTodo } = useCreateTodoMutation()
 
     function onTodoClick() {
         setIsEditing(true)
     }
 
-    function onUpdateTodo() {
-
-
+    function closeTodo() {
+        setIsEditing(false)
     }
 
-    function onDeleteTodo() {
-
+    async function onUpdateTodo(data: Todo) {
+        await updateTodo({
+            ...todo,
+            ...data,
+        })
+        setIsEditing(false)
     }
 
-    function onCreateTodo() {
+    async function onDeleteTodo() {
+        // const todo = await
+    }
 
+    async function onCreateTodo(todo: Todo) {
+        await createTodo(todo)
+        setIsEditing(false)
     }
 
     return (
@@ -52,13 +65,37 @@ const TodoRow = ({ todo }: { todo: Todo }) => {
                             label="Due Date"
                             value={todo.dueDate && dayjs(todo.dueDate)}
                             onChange={(newValue) =>
-                                setValue('dueDate', dayjs(newValue).toDate())
+                                setValue(
+                                    'dueDate',
+                                    dayjs(newValue).toISOString()
+                                )
                             }
                         />
                     </LocalizationProvider>
-                    <div className='flex gap-4'>
-                        <Button variant='outlined' onClick={onUpdateTodo}>Update</Button>
-                        <Button variant='outlined' onClick={onDeleteTodo} color='error'>Delete</Button>
+                    <div className="flex gap-4">
+                        <Button
+                            variant="outlined"
+                            onClick={handleSubmit(onDeleteTodo)}
+                            color="error"
+                        >
+                            Delete
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            className="justify-self-end"
+                            onClick={closeTodo}
+                        >
+                            Close
+                        </Button>
+                        <Button
+                            disabled={!formState.isDirty}
+                            variant="outlined"
+                            color="warning"
+                            onClick={handleSubmit(onUpdateTodo)}
+                        >
+                            Update
+                        </Button>
                     </div>
                 </div>
             )}
@@ -69,10 +106,9 @@ const TodoRow = ({ todo }: { todo: Todo }) => {
                         <Chip label={todo.status} />
                     </div>
                     <p className="text-neutral-600">{todo.description}</p>
-                    <span className="mr-2 text-sm text-neutral-600 italic">
-                        Due Date:
-                    </span>
-                    {todo.dueDate ? todo.dueDate.toDateString?.() : '-'}
+                    <p className="text-right text-sm text-neutral-600 italic">
+                        {`Due Date: ${todo.dueDate ? dayjs(todo.dueDate).format('DD-MM-YYYY') : '-'}`}
+                    </p>
                 </div>
             )}
         </div>

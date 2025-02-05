@@ -21,13 +21,13 @@ const TodoListPage = () => {
         (acc, page) => acc.concat(page.data),
         []
     )
-
+    
     return (
         <div className="mx-auto my-8 max-w-md min-w-[50vw] space-x-4">
             <h1 className="text-4xl">My Todo List</h1>
             <div className="h-[50vh] overflow-y-auto" id="todo-list">
                 <InfiniteScroll
-                    className="divide-gray-200 divide-y-2 space-y-2"
+                    className="space-y-2 divide-y-2 divide-gray-200"
                     dataLength={flatTodos?.length ?? 0}
                     next={fetchNextPage}
                     hasMore={hasNextPage}

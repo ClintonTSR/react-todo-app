@@ -2,7 +2,7 @@ export type Todo = {
     id: string,
     name: string,
     description: string,
-    dueDate: Date,
+    dueDate: string,
     status: string
 }
 
