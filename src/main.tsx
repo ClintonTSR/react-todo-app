@@ -11,10 +11,6 @@ const router = createBrowserRouter([
         path: "/",
         element: <TodoListPage/>,
     },
-    // {
-    //     path: "/todo/:todoId",
-    //     element: <TodoPage/>,
-    // },
 ]);
 
 export const queryClient = new QueryClient()
