@@ -12,7 +12,7 @@ import {
 } from '../../queries/todo'
 
 const TodoRow = ({ todo }: { todo: Todo }) => {
-    const { control, setValue, handleSubmit, formState } = useForm<Todo>()
+    const { control, setValue, handleSubmit, formState, getValues } = useForm<Todo>()
     const [isEditing, setIsEditing] = useState(false)
     const { mutateAsync: updateTodo } = useUpdateTodoMutation()
     const { mutateAsync: createTodo } = useCreateTodoMutation()
@@ -62,8 +62,9 @@ const TodoRow = ({ todo }: { todo: Todo }) => {
                     />
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
+                            format="DD-MM-YYYY"
                             label="Due Date"
-                            value={todo.dueDate && dayjs(todo.dueDate)}
+                            defaultValue={todo.dueDate && dayjs(todo.dueDate)}
                             onChange={(newValue) =>
                                 setValue(
                                     'dueDate',
@@ -90,7 +91,7 @@ const TodoRow = ({ todo }: { todo: Todo }) => {
                         </Button>
                         <Button
                             disabled={!formState.isDirty}
-                            variant="outlined"
+                            variant="contained"
                             color="warning"
                             onClick={handleSubmit(onUpdateTodo)}
                         >

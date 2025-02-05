@@ -18,10 +18,10 @@ const TodoListPage = () => {
     } = useGetTodosQuery({ limit: 30 })
 
     const flatTodos = todoRes?.pages.reduce(
-        (acc, page) => acc.concat(page.data),
+        (acc, page) => [...acc, ...page.data],
         []
     )
-    
+
     return (
         <div className="mx-auto my-8 max-w-md min-w-[50vw] space-x-4">
             <h1 className="text-4xl">My Todo List</h1>
