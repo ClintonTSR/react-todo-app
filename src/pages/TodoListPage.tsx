@@ -1,12 +1,14 @@
-import { Box, Fab, Stack, Typography } from '@mui/material'
+import { Box, Button, Fab, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { useGetTodosQuery } from '../queries/todo'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import TodoRow from '../components/customs/TodoRow'
+import { useState } from 'react'
 
 const TodoListPage = () => {
     const navigate = useNavigate()
+    const [showTodoInput, setShowTodoInput] = useState(true)
 
     const {
         data: todoRes,
@@ -22,9 +24,14 @@ const TodoListPage = () => {
         []
     )
 
+    function onAddTodoClick() {
+        setShowTodoInput(true)
+    }
     return (
-        <div className="mx-auto my-8 max-w-md min-w-[50vw] space-x-4">
+        <div className="mx-auto my-8 max-w-md min-w-[50vw] space-y-4">
+            <Button className="float-end" onClick={onAddTodoClick} variant='contained'>Add New Todo</Button>
             <h1 className="text-4xl">My Todo List</h1>
+            { <TodoRow />}
             <div className="h-[50vh] overflow-y-auto" id="todo-list">
                 <InfiniteScroll
                     className="space-y-2 divide-y-2 divide-gray-200"
