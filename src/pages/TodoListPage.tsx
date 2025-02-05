@@ -1,14 +1,18 @@
 import { Box, Button, Fab, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { useGetTodosQuery } from '../queries/todo'
+import { useCreateTodoMutation, useGetTodosQuery } from '../queries/todo'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import TodoRow from '../components/customs/TodoRow'
 import { useState } from 'react'
+import TodoInput from '../components/customs/TodoInput'
+import { Todo } from '../queries/todo.type'
+import { useForm } from 'react-hook-form'
 
 const TodoListPage = () => {
-    const navigate = useNavigate()
-    const [showTodoInput, setShowTodoInput] = useState(true)
+    const [showTodoInput, setShowTodoInput] = useState(false)
+    const { mutateAsync: createTodo } = useCreateTodoMutation()
+    const form = useForm<Todo>()
 
     const {
         data: todoRes,
@@ -27,11 +31,38 @@ const TodoListPage = () => {
     function onAddTodoClick() {
         setShowTodoInput(true)
     }
+
+    async function onCreateTodo(data: Todo) {
+        await createTodo(data)
+        setShowTodoInput(false)
+        form.reset({
+            name: "",
+            description: "",
+            dueDate: null,
+        })
+    }
+
+    function onCloseTodo() {
+        setShowTodoInput(false)
+    }
+
     return (
         <div className="mx-auto my-8 max-w-md min-w-[50vw] space-y-4">
-            <Button className="float-end" onClick={onAddTodoClick} variant='contained'>Add New Todo</Button>
+            <Button
+                className="float-end"
+                onClick={onAddTodoClick}
+                variant="contained"
+            >
+                Add New Todo
+            </Button>
             <h1 className="text-4xl">My Todo List</h1>
-            { <TodoRow />}
+            {showTodoInput && (
+                <TodoInput
+                    onCreateTodo={onCreateTodo}
+                    onCloseTodo={onCloseTodo}
+                    form={form}
+                />
+            )}
             <div className="h-[50vh] overflow-y-auto" id="todo-list">
                 <InfiniteScroll
                     className="space-y-2 divide-y-2 divide-gray-200"

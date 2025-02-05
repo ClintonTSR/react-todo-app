@@ -4,14 +4,15 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
 import { Todo } from '../../queries/todo.type'
 import MyTextField from '../inputs/MyTextField'
-import { ControllerProps, useForm } from 'react-hook-form'
+import { useForm, UseFormReturn } from 'react-hook-form'
 
 export type TodoInputProps = {
     todo?: Todo
     onUpdateTodo?: (data: Todo) => void
     onCreateTodo?: (data: Todo) => void
-    onDeleteTodo: (data: Todo) => void
-    onCloseTodo?: () => void
+    onDeleteTodo?: (data: Todo) => void
+    onCloseTodo: () => void
+    form: UseFormReturn<Todo>
 }
 
 export default function TodoInput({
@@ -20,9 +21,9 @@ export default function TodoInput({
     onUpdateTodo,
     onCreateTodo,
     onCloseTodo,
+    form,
 }: TodoInputProps) {
-    const { control, setValue, handleSubmit, formState } =
-        useForm<Todo>()
+    const { control, setValue, handleSubmit, formState } = form
 
     return (
         <div className="my-4 flex flex-col gap-4">
@@ -48,18 +49,22 @@ export default function TodoInput({
                     label="Due Date"
                     defaultValue={todo?.dueDate && dayjs(todo.dueDate)}
                     onChange={(newValue) =>
-                        setValue('dueDate', dayjs(newValue).toISOString())
+                        setValue('dueDate', dayjs(newValue).toISOString(), {
+                            shouldDirty: true,
+                        })
                     }
                 />
             </LocalizationProvider>
             <div className="flex gap-4">
-                <Button
-                    variant="outlined"
-                    onClick={handleSubmit(onDeleteTodo)}
-                    color="error"
-                >
-                    Delete
-                </Button>
+                {todo && (
+                    <Button
+                        variant="outlined"
+                        onClick={handleSubmit(onDeleteTodo)}
+                        color="error"
+                    >
+                        Delete
+                    </Button>
+                )}
                 <Button
                     variant="outlined"
                     fullWidth
@@ -80,7 +85,7 @@ export default function TodoInput({
                     </Button>
                 ) : (
                     <Button
-                        disabled={!formState.isDirty}
+                        disabled={!formState.isDirty && formState.isValid}
                         variant="contained"
                         color="warning"
                         onClick={handleSubmit(onCreateTodo)}

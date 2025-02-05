@@ -12,12 +12,10 @@ import {
 } from '../../queries/todo'
 import TodoInput from './TodoInput'
 
-const TodoRow = ({ todo }: { todo?: Todo }) => {
-    const { control, setValue, handleSubmit, formState, getValues } =
-        useForm<Todo>()
+const TodoRow = ({ todo }: { todo: Todo }) => {
     const [isEditing, setIsEditing] = useState(todo === null) // true if not exist
     const { mutateAsync: updateTodo } = useUpdateTodoMutation()
-    const { mutateAsync: createTodo } = useCreateTodoMutation()
+    const formControl = useForm<Todo>()
 
     function onTodoClick() {
         setIsEditing(true)
@@ -39,21 +37,18 @@ const TodoRow = ({ todo }: { todo?: Todo }) => {
         // const todo = await
     }
 
-    async function onCreateTodo(todo: Todo) {
-        await createTodo(todo)
-        setIsEditing(false)
-    }
-
     return (
         <div>
-            <TodoInput
-                todo={todo}
-                onDeleteTodo={onDeleteTodo}
-                onCloseTodo={onCloseTodo}
-                onCreateTodo={onCreateTodo}
-                onUpdateTodo={onUpdateTodo}
-            />
-            {todo && !isEditing && (
+            {isEditing && (
+                <TodoInput
+                    todo={todo}
+                    onDeleteTodo={onDeleteTodo}
+                    onCloseTodo={onCloseTodo}
+                    onUpdateTodo={onUpdateTodo}
+                    form={formControl}
+                />
+            )}
+            {!isEditing && (
                 <div onClick={onTodoClick}>
                     <div className="flex items-end justify-between">
                         <span className="font-bold">{todo.name}</span>
